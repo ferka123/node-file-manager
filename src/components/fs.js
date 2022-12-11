@@ -1,8 +1,9 @@
 import { store } from "../store.js";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { createReadStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 import { EOL } from "os";
+import { pipeline } from "stream/promises";
 
 const pathExists = (path) =>
   fs.stat(path).then(
@@ -79,6 +80,61 @@ export async function add(fileName) {
     const file = await fs.open(resolvePath(fileName), "a");
     await file.close();
   } catch (e) {
-    console.log(e);
+    console.log("Operation failed");
+  }
+}
+
+export async function rn(filePath, fileName) {
+  try {
+    const resolvedPath = resolvePath(filePath);
+    const newPath = path.join(path.dirname(resolvedPath), fileName);
+
+    const stat = await fs.stat(resolvedPath);
+    if (stat.isFile()) await fs.rename(resolvedPath, newPath);
+    else console.log("Wrong path")
+
+  } catch (e) {
+    console.log("Operation failed");
+  }
+}
+
+export async function cp(filePath, dirPath) {
+  try {
+    const resolvedFilePath = resolvePath(filePath);
+    const resolvedDirPath = resolvePath(dirPath);
+    const file = path.parse(filePath);
+
+    const readStream = createReadStream(resolvedFilePath);
+    const writeStream = createWriteStream(path.join(resolvedDirPath, file.base));
+    await pipeline(readStream, writeStream);
+
+  } catch (e) {
+    console.log("Operation failed");
+  }
+}
+
+export async function mv(filePath, dirPath) {
+  try {
+    const resolvedFilePath = resolvePath(filePath);
+    const resolvedDirPath = resolvePath(dirPath);
+    const file = path.parse(filePath);
+
+    const readStream = createReadStream(resolvedFilePath);
+    const writeStream = createWriteStream(path.join(resolvedDirPath, file.base));
+    await pipeline(readStream, writeStream);
+
+    await fs.unlink(resolvedFilePath);
+  } catch (e) {
+    console.log("Operation failed");
+  }
+}
+
+export async function rm(filePath) {
+  try {
+    const resolvedFilePath = resolvePath(filePath);
+    await fs.unlink(resolvedFilePath);
+
+  } catch (e) {
+    console.log("Operation failed");
   }
 }
