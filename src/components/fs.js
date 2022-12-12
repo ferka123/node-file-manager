@@ -5,13 +5,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { EOL } from "os";
 import { pipeline } from "stream/promises";
 
-const pathExists = (path) =>
-  fs.stat(path).then(
-    () => true,
-    () => false
-  );
-
-const resolvePath = (pathToResolve) => {
+export const resolvePath = (pathToResolve) => {
   if (!path.isAbsolute(pathToResolve)) {
     return path.resolve(store.currentDir, pathToResolve);
   }
