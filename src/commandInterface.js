@@ -1,20 +1,30 @@
 import * as readline from "readline/promises";
 import { commandParser } from "./commandParser.js";
-import { exitHandler } from "./components/io.js";
-import { printCurrentDir } from "./components/fs.js";
+import { homedir } from "os";
+import { getUserName } from "./components/cli.js";
 
 export function initCommandInterface() {
+  const userName = getUserName();
+  console.log(`Welcome to the File Manager, ${userName}!`);
+  process.chdir(homedir());
+
+  process.on("exit", () =>
+    console.log(`\nThank you for using File Manager, ${userName}, goodbye!`)
+  );
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  rl.on("line", async (input) => {
-    rl.pause();
-    await commandParser(input);
-    printCurrentDir();
-    rl.resume();
-  });
+  promptUser(rl)
 
-  rl.on("SIGINT", exitHandler);
+  rl.on("SIGINT", process.exit);
+}
+
+async function promptUser(rl) {
+  const input = await rl.question(`You are currently in ${process.cwd()} > `);
+  rl.pause();
+  await commandParser(input);
+  promptUser(rl);
 }

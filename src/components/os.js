@@ -3,45 +3,24 @@ import { EOL, cpus, homedir, userInfo, arch } from "os";
 export function parseArg(arg) {
   switch (arg) {
     case "--EOL":
-      printEOL();
+      console.log(JSON.stringify(EOL).replaceAll('"', ""));
       break;
     case "--cpus":
-      printCpus();
+      const cpuInfo = cpus();
+      console.log("Model: ", cpuInfo[0].model);
+      console.log("Cores: ", cpuInfo.length);
+      console.log(`Clock speed: ${cpuInfo[0].speed / 1000}Ghz`);
       break;
     case "--homedir":
-      printHomedir();
+      console.log(homedir());
       break;
     case "--username":
-      printUsername();
+      console.log(userInfo().username);
       break;
     case "--architecture":
-      printArch();
+      console.log(arch());
       break;
     default:
-      console.log("Wrong parameter");
+      console.log("Invalid input");
   }
-}
-
-function printEOL() {
-  console.log(JSON.stringify(EOL).replaceAll('"', ""));
-}
-
-function printCpus() {
-  console.log(cpus());
-  const cpuInfo = cpus();
-  console.log("Model: ", cpuInfo[0].model);
-  console.log("Cores: ", cpuInfo.length);
-  console.log(`Clock speed: ${cpuInfo[0].speed / 1000}Ghz`);
-}
-
-function printHomedir() {
-  console.log(homedir());
-}
-
-function printUsername() {
-  console.log(userInfo().username);
-}
-
-function printArch() {
-  console.log(arch());
 }

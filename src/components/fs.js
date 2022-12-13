@@ -1,29 +1,18 @@
-import { store } from "../store.js";
 import * as path from "path";
 import * as fs from "fs/promises";
 import { createReadStream, createWriteStream } from "fs";
 import { EOL } from "os";
 import { pipeline } from "stream/promises";
 
-export const resolvePath = (pathToResolve) => {
-  if (!path.isAbsolute(pathToResolve)) {
-    return path.resolve(store.currentDir, pathToResolve);
-  }
-  return pathToResolve;
-};
+export const fileCommands = { up, ls, cd, add, rn, cp, mv, rm };
 
-export function printCurrentDir() {
-  console.log(`You are currently in ${store.currentDir}`);
+function up() {
+  process.chdir("..");
 }
 
-export function goUp() {
-  const dir = store.currentDir.split(path.sep).slice(0, -1).join(path.sep);
-  store.currentDir = dir || path.sep;
-}
-
-export async function ls() {
+async function ls() {
   try {
-    const dir = await fs.readdir(store.currentDir, { withFileTypes: true });
+    const dir = await fs.readdir(process.cwd(), { withFileTypes: true });
 
     const directories = dir
       .filter((dirent) => dirent.isDirectory())
@@ -45,19 +34,17 @@ export async function ls() {
   }
 }
 
-export async function cd(newPath) {
+async function cd(newPath) {
   try {
-    const resolvedPath = resolvePath(newPath);
-    const stat = await fs.stat(resolvedPath);
-    if (stat.isDirectory()) store.currentDir = resolvedPath;
+    process.chdir(path.resolve(newPath));
   } catch (e) {
     console.log("Operation failed");
   }
 }
 
-export async function cat(filePath) {
+async function cat(filePath) {
   try {
-    const resolvedPath = resolvePath(filePath);
+    const resolvedPath = path.resolve(filePath);
     const stream = createReadStream(resolvedPath, "utf-8");
     await new Promise((resolve, reject) => {
       stream.pipe(process.stdout, { end: false });
@@ -69,65 +56,59 @@ export async function cat(filePath) {
   }
 }
 
-export async function add(fileName) {
+async function add(fileName) {
   try {
-    const file = await fs.open(resolvePath(fileName), "a");
+    const filePath = process.join(process.cwd(), fileName);
+    const file = await fs.open(filePath, "a");
     await file.close();
   } catch (e) {
     console.log("Operation failed");
   }
 }
 
-export async function rn(filePath, fileName) {
+async function rn(filePath, fileName) {
   try {
-    const resolvedPath = resolvePath(filePath);
-    const newPath = path.join(path.dirname(resolvedPath), fileName);
+    const srcPath = process.resolve(filePath);
+    const destPath = path.join(path.dirname(srcPath), fileName);
 
-    const stat = await fs.stat(resolvedPath);
-    if (stat.isFile()) await fs.rename(resolvedPath, newPath);
-    else console.log("Wrong path")
-
+    const stat = await fs.stat(srcPath);
+    if (stat.isFile()) await fs.rename(srcPath, destPath);
+    else throw new Error("Wrong path");
   } catch (e) {
     console.log("Operation failed");
   }
 }
 
-export async function cp(filePath, dirPath) {
+async function cp(filePath, dirPath) {
   try {
-    const resolvedFilePath = resolvePath(filePath);
-    const resolvedDirPath = resolvePath(dirPath);
-    const file = path.parse(filePath);
-
-    const readStream = createReadStream(resolvedFilePath);
-    const writeStream = createWriteStream(path.join(resolvedDirPath, file.base));
+    const readStream = createReadStream(path.resolve(filePath));
+    const writeStream = createWriteStream(
+      path.join(path.resolve(dirPath), path.basename(filePath))
+    );
     await pipeline(readStream, writeStream);
-
   } catch (e) {
     console.log("Operation failed");
   }
 }
 
-export async function mv(filePath, dirPath) {
+async function mv(filePath, dirPath) {
   try {
-    const resolvedFilePath = resolvePath(filePath);
-    const resolvedDirPath = resolvePath(dirPath);
-    const file = path.parse(filePath);
-
+    const resolvedFilePath = path.resolve(filePath);
     const readStream = createReadStream(resolvedFilePath);
-    const writeStream = createWriteStream(path.join(resolvedDirPath, file.base));
-    await pipeline(readStream, writeStream);
+    const writeStream = createWriteStream(
+      path.join(path.resolve(dirPath), path.basename(filePath))
+    );
 
+    await pipeline(readStream, writeStream);
     await fs.unlink(resolvedFilePath);
   } catch (e) {
     console.log("Operation failed");
   }
 }
 
-export async function rm(filePath) {
+async function rm(filePath) {
   try {
-    const resolvedFilePath = resolvePath(filePath);
-    await fs.unlink(resolvedFilePath);
-
+    await fs.unlink(path.resolve(filePath));
   } catch (e) {
     console.log("Operation failed");
   }

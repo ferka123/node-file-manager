@@ -1,15 +1,14 @@
 import { createBrotliCompress, createBrotliDecompress } from "zlib";
 import { pipeline } from "stream/promises";
 import { createReadStream, createWriteStream } from "fs";
-import { resolvePath } from "./fs.js";
 import * as path from "path";
 
 export async function compress(srcPath, destPath) {
     try {
       const file = path.parse(srcPath);
-      const resolvedDestPath = path.join(resolvePath(destPath), file.base + ".br");
+      const resolvedDestPath = path.join(path.resolve(destPath), file.base + ".br");
   
-      const srcStream = createReadStream(resolvePath(srcPath));
+      const srcStream = createReadStream(path.resolve(srcPath));
       const destStream = createWriteStream(resolvedDestPath);
       const brotli = createBrotliCompress();
   
@@ -23,9 +22,9 @@ export async function decompress(srcPath, destPath) {
   try {
     const file = path.parse(srcPath);
     if (file.ext !== ".br") throw new Error("Not a brotli archive");
-    const resolvedDestPath = path.join(resolvePath(destPath), file.name);
+    const resolvedDestPath = path.join(path.resolve(destPath), file.name);
 
-    const srcStream = createReadStream(resolvePath(srcPath));
+    const srcStream = createReadStream(path.resolve(srcPath));
     const destStream = createWriteStream(resolvedDestPath);
     const brotli = createBrotliDecompress();
 
