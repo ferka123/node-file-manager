@@ -1,21 +1,27 @@
-import { fileCommands } from "./components/fs.js";
+import { fsCommands } from "./components/fs.js";
 import { parseArg as parseOsArg } from "./components/os.js";
 import { hash } from "./components/hash.js";
 import { compress, decompress } from "./components/zlib.js";
 
 const commandsList = {
-  ...fileCommands,
+  ...fsCommands,
   hash,
   compress,
   decompress,
   os: parseOsArg,
+  ".exit": () => process.exit(1),
 };
 
 export async function commandParser(input) {
-  const [command, ...args] = input
+  const [cmd, ...args] = input
     .match(/(".*?"|\S+)/g)
     .map((el) => el.replaceAll('"', ""));
 
-  if (command in commandsList) await commandsList[command](...args);
+  if (validateCommand(cmd, args)) await commandsList[cmd](...args);
   else console.log("Invalid input");
+}
+
+function validateCommand(cmd, args) {
+  if (!commandsList.hasOwnProperty(cmd)) return false;
+  return commandsList[cmd].length === args.length && args.every(Boolean);
 }

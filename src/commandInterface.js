@@ -1,4 +1,4 @@
-import * as readline from "readline/promises";
+import { createInterface } from "readline/promises";
 import { commandParser } from "./commandParser.js";
 import { homedir } from "os";
 import { getUserName } from "./components/cli.js";
@@ -12,14 +12,14 @@ export function initCommandInterface() {
     console.log(`\nThank you for using File Manager, ${userName}, goodbye!`)
   );
 
-  const rl = readline.createInterface({
+  const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  promptUser(rl)
+  promptUser(rl);
 
-  rl.on("SIGINT", process.exit);
+  rl.on("SIGINT", () => process.exit(1));
 }
 
 async function promptUser(rl) {

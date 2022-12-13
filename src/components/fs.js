@@ -4,7 +4,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { EOL } from "os";
 import { pipeline } from "stream/promises";
 
-export const fileCommands = { up, ls, cd, add, rn, cp, mv, rm };
+export const fsCommands = { up, ls, cd, add, rn, cp, mv, rm };
 
 function up() {
   process.chdir("..");
