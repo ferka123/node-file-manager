@@ -1,6 +1,6 @@
 import { createInterface } from "readline/promises";
 import { commandParser } from "./commandParser.js";
-import { homedir } from "os";
+import { EOL, homedir } from "os";
 import { getUserName } from "./components/cli.js";
 
 export function initCommandInterface() {
@@ -9,7 +9,7 @@ export function initCommandInterface() {
   process.chdir(homedir());
 
   process.on("exit", () =>
-    console.log(`\nThank you for using File Manager, ${userName}, goodbye!`)
+    console.log(`Thank you for using File Manager, ${userName}, goodbye!`)
   );
 
   const rl = createInterface({
@@ -23,7 +23,7 @@ export function initCommandInterface() {
 }
 
 async function promptUser(rl) {
-  const input = await rl.question(`You are currently in ${process.cwd()} > `);
+  const input = await rl.question(`You are currently in ${process.cwd()}${EOL}> `);
   rl.pause();
   await commandParser(input);
   promptUser(rl);

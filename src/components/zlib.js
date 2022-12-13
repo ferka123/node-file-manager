@@ -14,7 +14,7 @@ export async function compress(srcPath, destPath) {
   
       await pipeline(srcStream, brotli, destStream);
     } catch (e) {
-      console.log("Operation failed", e.message);
+      console.log("Operation failed");
     }
   }
 
@@ -30,6 +30,6 @@ export async function decompress(srcPath, destPath) {
 
     await pipeline(srcStream, brotli, destStream);
   } catch (e) {
-    console.log("Operation failed: ", e.message);
+    console.log("Operation failed");
   }
 }

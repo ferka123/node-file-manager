@@ -17,6 +17,6 @@ export async function hash(filePath) {
       });
     });
   } catch (e) {
-    console.log("Operation failed: ", e.message);
+    console.log("Operation failed");
   }
 }

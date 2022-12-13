@@ -4,7 +4,7 @@ import { createReadStream, createWriteStream } from "fs";
 import { EOL } from "os";
 import { pipeline } from "stream/promises";
 
-export const fsCommands = { up, ls, cd, add, rn, cp, mv, rm };
+export const fsCommands = { up, ls, cd, cat, add, rn, cp, mv, rm };
 
 function up() {
   process.chdir("..");
@@ -16,14 +16,14 @@ async function ls() {
 
     const directories = dir
       .filter((dirent) => dirent.isDirectory())
-      .sort((a, b) => a.name < b.name)
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map((dirent) => {
         return { Name: dirent.name, Type: "directory" };
       });
 
     const files = dir
       .filter((dirent) => dirent.isFile())
-      .sort((a, b) => a.name < b.name)
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map((dirent) => {
         return { Name: dirent.name, Type: "file" };
       });
@@ -58,7 +58,7 @@ async function cat(filePath) {
 
 async function add(fileName) {
   try {
-    const filePath = process.join(process.cwd(), fileName);
+    const filePath = path.join(process.cwd(), fileName);
     const file = await fs.open(filePath, "a");
     await file.close();
   } catch (e) {
@@ -68,7 +68,7 @@ async function add(fileName) {
 
 async function rn(filePath, fileName) {
   try {
-    const srcPath = process.resolve(filePath);
+    const srcPath = path.resolve(filePath);
     const destPath = path.join(path.dirname(srcPath), fileName);
 
     const stat = await fs.stat(srcPath);
