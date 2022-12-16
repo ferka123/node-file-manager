@@ -4,7 +4,6 @@ import { createReadStream, createWriteStream } from "fs";
 import * as path from "path";
 
 export async function compress(srcPath, destPath) {
-    try {
       const file = path.parse(srcPath);
       const resolvedDestPath = path.join(path.resolve(destPath), file.base + ".br");
   
@@ -13,13 +12,9 @@ export async function compress(srcPath, destPath) {
       const brotli = createBrotliCompress();
   
       await pipeline(srcStream, brotli, destStream);
-    } catch (e) {
-      console.log("Operation failed");
-    }
   }
 
 export async function decompress(srcPath, destPath) {
-  try {
     const file = path.parse(srcPath);
     if (file.ext !== ".br") throw new Error("Not a brotli archive");
     const resolvedDestPath = path.join(path.resolve(destPath), file.name);
@@ -29,7 +24,4 @@ export async function decompress(srcPath, destPath) {
     const brotli = createBrotliDecompress();
 
     await pipeline(srcStream, brotli, destStream);
-  } catch (e) {
-    console.log("Operation failed");
-  }
 }

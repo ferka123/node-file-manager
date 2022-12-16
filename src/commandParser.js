@@ -16,8 +16,13 @@ export async function commandParser(input) {
   const [cmd, ...args] =
     input.match(/(".*?"|\S+)/g)?.map((el) => el.replaceAll('"', "")) ?? [];
 
-  if (validateCommand(cmd, args)) await commandsList[cmd](...args);
-  else console.log("Invalid input");
+  if (validateCommand(cmd, args)) {
+    try {
+      await commandsList[cmd](...args);
+    } catch {
+      console.log("Operation failed");
+    }
+  } else console.log("Invalid input");
 }
 
 function validateCommand(cmd, args) {

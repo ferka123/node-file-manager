@@ -3,7 +3,6 @@ import { createReadStream } from "fs";
 import * as path from "path";
 
 export async function hash(filePath) {
-  try {
     const input = createReadStream(path.resolve(filePath));
     const hash = crypto.createHash("sha256");
     await new Promise((resolve, reject) => {
@@ -16,7 +15,4 @@ export async function hash(filePath) {
         resolve();
       });
     });
-  } catch (e) {
-    console.log("Operation failed");
-  }
 }
