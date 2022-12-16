@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/ferka123/node-file-manager.git"
   },
-  "author": "",
+  "author": "ferka123",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ferka123/node-file-manager/issues"
